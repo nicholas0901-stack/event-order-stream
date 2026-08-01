@@ -1,0 +1,102 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eos-postgres
+    environment:
+      POSTGRES_DB: orderdb
+      POSTGRES_USER: eos_user
+      POSTGRES_PASSWORD: eos_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eos_user -d orderdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.1.1
+    container_name: eos-redpanda
+    command:
+      - redpanda
+      - start
+      - --smp=1
+      - --overprovisioned
+      - --node-id=0
+      - --kafka-addr=PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr=0.0.0.0:8083
+      - --advertise-pandaproxy-addr=localhost:8083
+    ports:
+      - "9092:9092"
+      - "8083:8083"
+      - "9644:9644"
+
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:v2.7.2
+    container_name: eos-redpanda-console
+    environment:
+      KAFKA_BROKERS: redpanda:29092
+    ports:
+      - "8090:8080"
+    depends_on:
+      - redpanda
+
+  order-service:
+    build:
+      context: ./order-service
+    container_name: eos-order-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orderdb
+      SPRING_DATASOURCE_USERNAME: eos_user
+      SPRING_DATASOURCE_PASSWORD: eos_pass
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:29092
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda:
+        condition: service_started
+
+  notification-service:
+    build:
+      context: ./notification-service
+    container_name: eos-notification-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orderdb
+      SPRING_DATASOURCE_USERNAME: eos_user
+      SPRING_DATASOURCE_PASSWORD: eos_pass
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:29092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda:
+        condition: service_started
+      order-service:
+        condition: service_started
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    container_name: eos-gateway-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:29092
+      ORDER_SERVICE_URL: http://order-service:8081
+    ports:
+      - "8082:8082"
+    depends_on:
+      redpanda:
+        condition: service_started
+      order-service:
+        condition: service_started
+
+volumes:
+  pgdata:

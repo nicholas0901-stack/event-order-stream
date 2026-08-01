@@ -1,0 +1,47 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: gateway-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: gateway-service
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.nick.gatewayservice.kafka"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.nick.gatewayservice.kafka.OrderStatusUpdatedEvent
+
+app:
+  order-service:
+    base-url: http://localhost:8081
+  kafka:
+    topic:
+      order-status-updates: order-status-updates
+  jwt:
+    # Demo-only secret. In a real deployment this comes from a secrets manager, never checked into git.
+    secret: "change-this-demo-secret-change-this-demo-secret-32bytes-min"
+    expiry-minutes: 60
+  demo-user:
+    username: nick
+    # Plaintext demo credential, intentionally not bcrypt - this is a portfolio demo login,
+    # not a real user store. Swap for a proper UserDetailsService + hashed passwords
+    # before this pattern is ever reused for anything real.
+    password: devops2026
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+
+app:
+  order-service:
+    base-url: ${ORDER_SERVICE_URL}
