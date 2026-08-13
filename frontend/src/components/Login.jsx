@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { login } from '../api'
 
 export default function Login({ onLoggedIn }) {
-  const [username, setUsername] = useState('nick')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -29,7 +29,7 @@ export default function Login({ onLoggedIn }) {
         <input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
 
         <label htmlFor="password">password</label>
-        <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="devops2026" />
+        <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter Password" />
 
         {error && <div className="error-text">{error}</div>}
 
