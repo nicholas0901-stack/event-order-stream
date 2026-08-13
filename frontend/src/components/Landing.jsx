@@ -15,8 +15,7 @@ const stats = [
   { value: '<1s', label: 'status propagation' }
 ]
 
-// Cycles a fake order through the same lifecycle a real one goes through,
-// so the landing page demonstrates the concept before anyone logs in.
+// Mock Data on how the stats will be. 
 const TICKER_SEQUENCE = ['pending', 'processing', 'confirmed']
 const TICKER_ORDERS = [
   { id: '7A21', customer: 'Sarah Chen', item: 'Mechanical keyboard' },
@@ -26,7 +25,7 @@ const TICKER_ORDERS = [
 
 const payloadExample = `{
   "orderId": "a3f2-...",
-  "customerName": "Nick Ng",
+  "customerName": "John Doe",
   "totalAmount": 129.00,
   "items": [
     { "productName": "Mechanical keyboard", "quantity": 1, "unitPrice": 129.00 }
