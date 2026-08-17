@@ -45,3 +45,21 @@ spring:
 app:
   order-service:
     base-url: ${ORDER_SERVICE_URL}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: SCRAM-SHA-256
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_SASL_USERNAME}" password="${KAFKA_SASL_PASSWORD}";
+
+app:
+  order-service:
+    base-url: ${ORDER_SERVICE_URL}
+  jwt:
+    secret: ${JWT_SECRET}
