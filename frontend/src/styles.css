@@ -136,7 +136,7 @@ input:focus {
 
 .item-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
+  grid-template-columns: 2fr 0.7fr 0.9fr auto;
   gap: 8px;
   align-items: center;
   margin-bottom: 10px;
@@ -720,8 +720,11 @@ input:focus {
   color: #6b6f85;
   margin-bottom: 8px;
 }
-.dashboard-greeting strong {
-  color: #22d3ee;
+
+.dashboard-col-sticky {
+  grid-area: form;
+  position: sticky;
+  top: 24px;
 }
 
 .dashboard-grid {
@@ -801,4 +804,42 @@ input:focus {
 }
 .empty-state-rich .empty-sub {
   font-size: 12px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  grid-template-areas:
+    "stats  stats"
+    "form   orders";
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "stats"
+      "form"
+      "orders";
+  }
+  .dashboard-col-sticky {
+    position: static;
+  }
+}
+.dashboard-grid .glass {
+  margin-bottom: 0;
+}
+.dashboard-col-sticky {
+  grid-area: form;
+}
+.stats-row-full {
+  grid-area: stats;
+}
+.dashboard-orders-col {
+  grid-area: orders;
+}
+.dashboard-col-sticky {
+  position: sticky;
+  top: 24px;
 }
