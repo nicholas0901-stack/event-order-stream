@@ -142,6 +142,12 @@ input:focus {
   margin-bottom: 10px;
 }
 
+.item-row input {
+  font-size: 13px;
+  padding: 9px 8px;
+  min-width: 0;
+}
+
 .btn-primary {
   display: inline-flex;
   align-items: center;

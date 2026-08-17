@@ -78,7 +78,7 @@ export default function OrderForm({ token, onOrderCreated }) {
               type="number"
               step="0.01"
               min="0"
-              placeholder="Price"
+              placeholder="0.00"
               value={item.unitPrice}
               onChange={(e) => updateItem(index, 'unitPrice', e.target.value)}
               style={{ marginBottom: 0 }}
