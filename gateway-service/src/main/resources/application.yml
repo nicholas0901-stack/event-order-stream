@@ -1,6 +1,11 @@
 server:
   port: ${PORT:8082}
 
+management:
+  health:
+    kafka:
+      enabled: false
+      
 spring:
   application:
     name: gateway-service
