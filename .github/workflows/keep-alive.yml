@@ -1,0 +1,19 @@
+name: Keep services awake
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping order-service
+        run: curl -sf https://event-order-stream-order-service.onrender.com/api/orders > /dev/null
+
+      - name: Ping notification-service
+        run: curl -sf https://event-order-stream-notification-service.onrender.com/ > /dev/null
+
+      - name: Ping gateway-service
+        run: curl -sf https://event-order-stream-gateway-service.onrender.com/actuator/health > /dev/null
