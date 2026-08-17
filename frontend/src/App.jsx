@@ -76,23 +76,35 @@ export default function App() {
   }
 
   return (
-    <div className="app-wrap">
-      <div className="orb orb-1"></div>
-      <div className="orb orb-2"></div>
-      <div className="nav">
-        <span className="brand">LedgerExchange</span>
-        <button className="btn-ghost" onClick={handleLogout}>sign out</button>
+      <div className="app-wrap">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="nav">
+          <span className="brand">LedgerExchange</span>
+          <button className="btn-ghost" onClick={handleLogout}>sign out</button>
+        </div>
+
+        <div className="dashboard-header">
+          <div className="dashboard-greeting">
+            signed in as <strong>{username}</strong>
+          </div>
+          <h1>real-time commerce,<br />powered by kafka</h1>
+          <p className="sub">
+            Every order streams through an event pipeline and updates live below —
+            no refresh, no polling.
+          </p>
+        </div>
+
+        <div className="dashboard-grid">
+          <div className="dashboard-col-sticky">
+            <OrderForm token={token} onOrderCreated={setNewOrder} />
+          </div>
+          <OrderDashboard token={token} newOrder={newOrder} />
+        </div>
+
+        <footer className="footer">
+          Built by Nicholas Ng · <a href="https://nicng.vercel.app/" target="_blank" rel="noreferrer">portfolio</a>
+        </footer>
       </div>
-      <h1>real-time commerce,<br />powered by kafka</h1>
-      <p className="sub">
-        Signed in as {username}. Every order streams through an event pipeline and updates below
-        the moment it happens — no refresh, no polling.
-      </p>
-      <OrderForm token={token} onOrderCreated={setNewOrder} />
-      <OrderDashboard token={token} newOrder={newOrder} />
-      <footer className="footer">
-        Built by Nicholas Ng · <a href="https://nicng.vercel.app/" target="_blank" rel="noreferrer">portfolio</a>
-      </footer>
-    </div>
-  )
+    )
 }
