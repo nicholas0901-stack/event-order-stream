@@ -29,19 +29,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if (token != null && jwtUtil.isValid(token)) {
-            String username = jwtUtil.extractUsername(token);
-            var auth = new UsernamePasswordAuthenticationToken(username, null, List.of());
-            SecurityContextHolder.getContext().setAuthentication(auth);
+        if (token == null) {
+            response.setHeader("X-Jwt-Debug", "no-token-found");
+        } else {
+            String failureReason = jwtUtil.checkValidity(token);
+            if (failureReason == null) {
+                String username = jwtUtil.extractUsername(token);
+                var auth = new UsernamePasswordAuthenticationToken(username, null, List.of());
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                response.setHeader("X-Jwt-Debug", "valid");
+            } else {
+                response.setHeader("X-Jwt-Debug", failureReason);
+            }
         }
 
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * SSE clients (EventSource) can't set custom headers, so the token is also
-     * accepted as a "token" query param on the stream endpoint.
-     */
     private String resolveToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {

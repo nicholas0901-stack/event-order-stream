@@ -40,15 +40,17 @@ public class JwtUtil {
         return parseClaims(token).getSubject();
     }
 
-    public boolean isValid(String token) {
-        try {
-            Claims claims = parseClaims(token);
-            return claims.getExpiration().after(new Date());
-        } catch (Exception e) {
-            log.warn("JWT validation failed: {} - {}", e.getClass().getSimpleName(), e.getMessage());
-            return false;
+    public String checkValidity(String token) {
+    try {
+        Claims claims = parseClaims(token);
+        if (!claims.getExpiration().after(new Date())) {
+            return "expired";
         }
+        return null;
+    } catch (Exception e) {
+        return e.getClass().getSimpleName() + ": " + e.getMessage();
     }
+}
 
     private Claims parseClaims(String token) {
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
