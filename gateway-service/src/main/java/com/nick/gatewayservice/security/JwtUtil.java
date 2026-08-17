@@ -4,6 +4,8 @@ import com.nick.gatewayservice.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -13,6 +15,8 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
     private final SecretKey key;
     private final long expiryMinutes;
@@ -41,6 +45,7 @@ public class JwtUtil {
             Claims claims = parseClaims(token);
             return claims.getExpiration().after(new Date());
         } catch (Exception e) {
+            log.warn("JWT validation failed: {} - {}", e.getClass().getSimpleName(), e.getMessage());
             return false;
         }
     }
