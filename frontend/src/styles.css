@@ -78,7 +78,7 @@ h1 {
   font-size: 34px;
   font-weight: 700;
   line-height: 1.15;
-  background: linear-gradient(120deg, #ffffff 20%, #8b5cf6 55%, #22d3ee 90%);
+  background: linear-gradient(120deg, #ffffff 10%, #8b5cf6 40%, #22d3ee 70%, #8b5cf6 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -422,4 +422,102 @@ input:focus {
 .btn-secondary-full:hover {
   background: rgba(139, 92, 246, 0.15);
   border-color: rgba(139, 92, 246, 0.5);
+}
+
+/* Subtle background grid for depth */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 80%);
+}
+
+/* Scroll-reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Pulsing CTA glow ring */
+.cta-glow-wrap {
+  position: relative;
+  display: inline-block;
+}
+.cta-glow-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #8b5cf6, #22d3ee);
+  opacity: 0.5;
+  filter: blur(10px);
+  animation: ctaPulse 2.4s ease-in-out infinite;
+  z-index: -1;
+}
+@keyframes ctaPulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(1.04); }
+}
+
+/* Animated data-flow line for the architecture steps */
+.flow-track {
+  position: relative;
+  padding-left: 22px;
+}
+.flow-track::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, #8b5cf6, #22d3ee);
+  opacity: 0.3;
+}
+.flow-dot {
+  position: absolute;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 10px #22d3ee, 0 0 20px rgba(34, 211, 238, 0.5);
+  animation: flowTravel 3.6s ease-in-out infinite;
+}
+@keyframes flowTravel {
+  0% { top: 8px; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: calc(100% - 16px); opacity: 0; }
+}
+
+/* Shimmering hero headline */
+.shimmer-text {
+  background-size: 200% auto;
+  animation: shimmer 5s linear infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-dot, .cta-glow-wrap::before, .shimmer-text, .orb {
+    animation: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
