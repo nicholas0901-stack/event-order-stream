@@ -13,7 +13,6 @@ export default function App() {
   const [username, setUsername] = useState(null)
   const [newOrder, setNewOrder] = useState(null)
 
-  // Restore session on load, so a refresh doesn't force a re-login
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
@@ -54,7 +53,7 @@ export default function App() {
         <div className="orb orb-1"></div>
         <div className="orb orb-2"></div>
         <div className="nav">
-          <span className="brand">event-order-stream</span>
+          <span className="brand">LedgerExchange</span>
           <button className="btn-ghost" onClick={() => setView('landing')}>← back</button>
         </div>
         <Register onRegistered={handleLogin} onSwitchToLogin={() => setView('login')} />
@@ -68,7 +67,7 @@ export default function App() {
         <div className="orb orb-1"></div>
         <div className="orb orb-2"></div>
         <div className="nav">
-          <span className="brand">event-order-stream</span>
+          <span className="brand">LedgerExchange</span>
           <button className="btn-ghost" onClick={() => setView('landing')}>← back</button>
         </div>
         <Login onLoggedIn={handleLogin} onSwitchToRegister={() => setView('register')} />
@@ -81,7 +80,7 @@ export default function App() {
       <div className="orb orb-1"></div>
       <div className="orb orb-2"></div>
       <div className="nav">
-        <span className="brand">event-order-stream</span>
+        <span className="brand">LedgerExchange</span>
         <button className="btn-ghost" onClick={handleLogout}>sign out</button>
       </div>
       <h1>real-time commerce,<br />powered by kafka</h1>
