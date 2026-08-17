@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { login } from '../api'
 
-export default function Login({ onLoggedIn }) {
+export default function Login({ onLoggedIn, onSwitchToRegister }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -37,6 +37,13 @@ export default function Login({ onLoggedIn }) {
           {loading ? 'signing in…' : 'sign in →'}
         </button>
       </form>
+
+      <div className="ticker-note" style={{ marginTop: 16 }}>
+        need an account?{' '}
+        <span style={{ color: '#8b5cf6', cursor: 'pointer', textDecoration: 'underline' }} onClick={onSwitchToRegister}>
+          create one
+        </span>
+      </div>
     </div>
   )
 }
