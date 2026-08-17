@@ -48,7 +48,7 @@ npm run dev
 ```
 Open http://localhost:5173.
 
-**3. Log in** with username `nick`, password `devops2026` (demo credentials, see
+**3. Log in** with username password  (demo credentials, see
 `gateway-service/src/main/resources/application.yml`).
 
 **4. Create an order.** Watch its status flip from `processing` to `confirmed` (or
