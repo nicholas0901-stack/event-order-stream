@@ -521,3 +521,192 @@ input:focus {
     transition: none !important;
   }
 }
+
+.landing-wrap {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 56px;
+  align-items: center;
+  margin-bottom: 72px;
+}
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+.browser-mockup {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  transform: perspective(1200px) rotateY(-8deg) rotateX(4deg);
+  box-shadow: 0 30px 70px rgba(139, 92, 246, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+.browser-mockup:hover {
+  transform: perspective(1200px) rotateY(-2deg) rotateX(1deg) scale(1.02);
+  box-shadow: 0 40px 90px rgba(139, 92, 246, 0.38), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+@media (max-width: 900px) {
+  .browser-mockup { transform: none; }
+  .browser-mockup:hover { transform: scale(1.01); }
+}
+.browser-topbar {
+  display: flex;
+  gap: 6px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.browser-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.browser-body {
+  padding: 20px;
+}
+
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #22d3ee;
+  margin-bottom: 14px;
+}
+
+.hero-heading {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+  margin-bottom: 18px;
+  background: linear-gradient(120deg, #ffffff 10%, #8b5cf6 45%, #22d3ee 75%, #8b5cf6 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+@media (max-width: 900px) {
+  .hero-heading { font-size: 34px; }
+}
+
+.hero-sub {
+  color: #9ca0b8;
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 32px;
+  max-width: 480px;
+}
+
+.stepper-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  position: relative;
+}
+.stepper-grid::before {
+  content: '';
+  position: absolute;
+  top: 19px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+  opacity: 0.3;
+}
+@media (max-width: 700px) {
+  .stepper-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .stepper-grid::before {
+    top: 10%;
+    bottom: 10%;
+    left: 19px;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+}
+.step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 700px) {
+  .step-node {
+    flex-direction: row;
+    text-align: left;
+    gap: 14px;
+  }
+}
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #0a0a12;
+  border: 2px solid #8b5cf6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c7c9dd;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.4);
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+.step-title {
+  font-size: 13px;
+  color: #e4e4f0;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.step-detail {
+  font-size: 11.5px;
+  color: #6b6f85;
+  line-height: 1.4;
+}
+
+.tech-marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+.tech-marquee-track {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  animation: marquee 16s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.tech-marquee:hover .tech-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-marquee-track, .hero-heading {
+    animation: none !important;
+  }
+}

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 
-const stack = ['Kafka', 'Spring Boot', 'JWT', 'SSE', 'PostgreSQL', 'React', 'Docker']
+const stack = ['Kafka', 'Spring Boot', 'Spring Security', 'JWT', 'SSE', 'PostgreSQL', 'React', 'Vite', 'Docker', 'Redpanda']
 
 const flow = [
-  { label: 'React frontend', detail: 'Creates orders, watches them live' },
-  { label: 'API gateway', detail: 'JWT auth · proxies · SSE broadcast' },
-  { label: 'Kafka', detail: 'order-events → order-status-updates' },
-  { label: 'Notification service', detail: 'Consumes, processes, publishes status' }
+  { label: 'React frontend', detail: 'Creates orders, watches live' },
+  { label: 'API gateway', detail: 'JWT auth · SSE broadcast' },
+  { label: 'Kafka', detail: 'order-events → status-updates' },
+  { label: 'Notification service', detail: 'Consumes, processes, publishes' }
 ]
 
 const stats = [
@@ -52,11 +52,7 @@ function Reveal({ children }) {
     return () => observer.disconnect()
   }, [])
 
-  return (
-    <div ref={ref} className={`reveal ${visible ? 'visible' : ''}`}>
-      {children}
-    </div>
-  )
+  return <div ref={ref} className={`reveal ${visible ? 'visible' : ''}`}>{children}</div>
 }
 
 export default function Landing({ onEnter }) {
@@ -87,10 +83,10 @@ export default function Landing({ onEnter }) {
 
   const order = TICKER_ORDERS[tickerIndex]
   const status = TICKER_SEQUENCE[statusIndex]
+  const marqueeStack = [...stack, ...stack]
 
   return (
-    <div className="app-wrap">
-      <div className="bg-grid"></div>
+    <div className="landing-wrap">
       <div className="orb orb-1" ref={orb1Ref}></div>
       <div className="orb orb-2" ref={orb2Ref}></div>
 
@@ -101,16 +97,41 @@ export default function Landing({ onEnter }) {
         </a>
       </div>
 
-      <h1 className="shimmer-text">real-time commerce,<br />powered by kafka</h1>
-      <p className="sub">
-        A full event-driven order pipeline — Kafka messaging, a JWT-secured API gateway,
-        and a live status stream over SSE. Create an order and watch it move through
-        the system in real time, no refresh, no polling.
-      </p>
+      {/* Hero: asymmetric two-column */}
+      <div className="hero-grid">
+        <div>
+          <div className="hero-eyebrow">event-driven architecture demo</div>
+          <h1 className="hero-heading">Real-time commerce,<br />powered by Kafka</h1>
+          <p className="hero-sub">
+            A full event-driven order pipeline — Kafka messaging, a JWT-secured API gateway,
+            and a live status stream over SSE. Create an order and watch it move through
+            the system in real time, no refresh, no polling.
+          </p>
+          <div className="cta-glow-wrap">
+            <button className="btn-primary" onClick={onEnter}>try live demo →</button>
+          </div>
+        </div>
 
-      <div style={{ marginBottom: 32 }}>
-        <div className="cta-glow-wrap">
-          <button className="btn-primary" onClick={onEnter}>try live demo →</button>
+        <div className="browser-mockup">
+          <div className="browser-topbar">
+            <span className="browser-dot" style={{ background: '#fb7185' }}></span>
+            <span className="browser-dot" style={{ background: '#fbbf24' }}></span>
+            <span className="browser-dot" style={{ background: '#34d399' }}></span>
+          </div>
+          <div className="browser-body">
+            <div className="section-label">active orders</div>
+            <div className="order-row">
+              <div>
+                <div className="order-id">#{order.id} · {order.customer}</div>
+                <div className="order-meta">{order.item}</div>
+              </div>
+              <div className={`status ${status}`}>
+                <span className={`dot ${status}`}></span>
+                {status}
+              </div>
+            </div>
+            <div className="ticker-note">live demo preview</div>
+          </div>
         </div>
       </div>
 
@@ -127,32 +148,13 @@ export default function Landing({ onEnter }) {
 
       <Reveal>
         <div className="glass">
-          <div className="section-label">watch it work</div>
-          <div className="order-row">
-            <div>
-              <div className="order-id">#{order.id} · {order.customer}</div>
-              <div className="order-meta">{order.item}</div>
-            </div>
-            <div className={`status ${status}`}>
-              <span className={`dot ${status}`}></span>
-              {status}
-            </div>
-          </div>
-          <div className="ticker-note">simulated preview — sign in to create a real one</div>
-        </div>
-      </Reveal>
-
-      <Reveal>
-        <div className="glass">
           <div className="section-label">how it flows</div>
-          <div className="flow-track">
-            <div className="flow-dot"></div>
+          <div className="stepper-grid">
             {flow.map((step, i) => (
-              <div className="order-row hoverable" key={step.label}>
-                <div>
-                  <div className="order-id">{String(i + 1).padStart(2, '0')} · {step.label}</div>
-                  <div className="order-meta">{step.detail}</div>
-                </div>
+              <div className="step-node" key={step.label}>
+                <div className="step-circle">{i + 1}</div>
+                <div className="step-title">{step.label}</div>
+                <div className="step-detail">{step.detail}</div>
               </div>
             ))}
           </div>
@@ -176,10 +178,12 @@ export default function Landing({ onEnter }) {
       <Reveal>
         <div className="glass">
           <div className="section-label">built with</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {stack.map((tech) => (
-              <span key={tech} className="tech-badge hoverable">{tech}</span>
-            ))}
+          <div className="tech-marquee">
+            <div className="tech-marquee-track">
+              {marqueeStack.map((tech, i) => (
+                <span key={i} className="tech-badge">{tech}</span>
+              ))}
+            </div>
           </div>
         </div>
       </Reveal>
