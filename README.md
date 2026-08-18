@@ -65,7 +65,7 @@ Kafka.
 
 ## What's live
 
-- Frontend deployed to Vercel: [add your URL here]
+- Frontend deployed to Vercel: (https://event-order-stream-gst8ews5a-nicholas-s-projects-8fd784f3.vercel.app/)
 - Backend fully deployed on Render — order-service, notification-service, gateway-service
 - PostgreSQL on Neon
 - Kafka on Redpanda Cloud (not Upstash — Upstash discontinued their Kafka product in 2025)
