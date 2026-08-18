@@ -147,7 +147,3 @@ Two separate GitHub Actions workflows:
 
 - Rate-limit-aware retry/backoff in the frontend itself (currently surfaces Render's
   `429` responses directly to the user rather than retrying transparently)
-
-
-
-Built by Nicholas Ng · [portfolio](https://nicng.vercel.app/)
