@@ -63,19 +63,22 @@ purely for a lighter footprint and faster startup than running real Kafka + ZooK
 Docker. Production deployment targets **Upstash Kafka**, which is genuine managed Apache
 Kafka.
 
-## What's not built yet
-
-- Backend deployment to Render (order-service, notification-service, gateway-service)
-- notification-service needs a health-check endpoint added before it can run.
-- PostgreSQL on Neon
-- Kafka on Redpanda Cloud (not Upstash — Upstash discontinued their Kafka product in 2025)
-- Each backend service needs a `prod` Spring profile added for SASL_SSL Kafka auth (Redpanda Cloud requires authentication; local dev doesn't)
-- Once Render is live, update Vercel's `VITE_API_URL` env var to point at the real gateway URL and redeploy
-- CI/CD pipeline (GitHub Actions per service)
-- This has not been compiled or run in an automated environment — flag any build errors
-
 ## What's live
 
-- Frontend deployed to Vercel
-- Landing page, order form, and dashboard UI are fully functional
-- Login/order creation will fail until the backend is deployed — this is as expected, not a bug, until the items above are done
+- Frontend deployed to Vercel: [add your URL here]
+- Backend fully deployed on Render — order-service, notification-service, gateway-service
+- PostgreSQL on Neon
+- Kafka on Redpanda Cloud (not Upstash — Upstash discontinued their Kafka product in 2025)
+- Full order pipeline confirmed working end to end: create an order → Kafka → notification-service
+  processes it → status streams back live via SSE, no refresh needed
+- JWT authentication with user registration and login (BCrypt-hashed passwords, Postgres-backed)
+- GitHub Actions workflow pings all three backend services every 10 minutes to prevent
+  Render's free-tier services from spinning down on inactivity
+
+## What's not built yet
+
+- CI/CD build/test pipeline (GitHub Actions running `mvn test` on push, separate from the
+  keep-alive workflow above) — this has not been compiled or tested in an automated
+  environment, so a broken commit could reach Render undetected
+- No local build verification was run before pushing several fixes during development —
+  flag any build errors if you fork this
