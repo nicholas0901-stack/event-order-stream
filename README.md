@@ -17,23 +17,35 @@ flowing between three independent backend services, pushed to the browser over
 Server-Sent Events (SSE).
 
 ## Architecture
-```mermaid
-flowchart TB
-    FE["React frontend<br/><small>Vercel · SSE client</small>"]
-    GW["API gateway<br/><small>JWT auth · SSE broadcast</small>"]
-    OS["Order service<br/><small>REST API · Postgres</small>"]
-    K1["Kafka<br/><small>order-events</small>"]
-    NS["Notification service<br/><small>Consumer · processor</small>"]
-    K2["Kafka<br/><small>order-status-updates</small>"]
 
-    FE -->|"REST + SSE"| GW
-    GW -->|"proxies"| OS
-    OS -->|"publishes"| K1
-    K1 -->|"consumes"| NS
-    NS -->|"publishes"| K2
-    K2 -.->|"consumes"| GW
-    K2 -.->|"consumes"| OS
-    GW -.->|"SSE stream"| FE
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 40, 'rankSpacing': 55}}}%%
+flowchart TB
+    FE["React frontend<br/>Vercel"]
+    GW["API gateway<br/>JWT + SSE"]
+    OS["Order service<br/>REST API"]
+    K1["Kafka<br/>order-events"]
+    NS["Notification service<br/>Kafka consumer"]
+    K2["Kafka<br/>status-updates"]
+
+    FE -->|REST + SSE| GW
+    GW -->|proxies| OS
+    OS -->|publishes| K1
+    K1 -->|consumes| NS
+    NS -->|publishes| K2
+    K2 -.->|consumes| GW
+    K2 -.->|consumes| OS
+    GW -.->|SSE stream| FE
+
+    classDef frontend fill:#ccfbf1,stroke:#0f766e,color:#134e4a
+    classDef gateway fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
+    classDef service fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+    classDef kafka fill:#fef3c7,stroke:#d97706,color:#78350f
+
+    class FE frontend
+    class GW gateway
+    class OS,NS service
+    class K1,K2 kafka
 ```
 
 - **order-service** — REST API for creating/listing orders, persists to Postgres,
