@@ -6,7 +6,7 @@ designing a message contract between services, debugging cross-service serializa
 and auth issues end to end, and operating a deployed system on real free-tier
 infrastructure constraints rather than a clean local sandbox.
 
-**Live demo:** https://event-order-stream-gst8ews5a-nicholas-s-projects-8fd784f3.vercel.app/
+**Live demo:** https://event-order-stream.vercel.app/
 
 ## What it does
 
