@@ -80,6 +80,18 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      # Neon's serverless Postgres auto-suspends its compute after a short idle
+      # period and drops connections outright when it does. If HikariCP holds a
+      # connection past that point, every request needing the DB right after an
+      # idle gap discovers a batch of dead connections at once and has to pay
+      # for reconnecting all of them under load. Recycling connections before
+      # Neon's suspend timeout - and proactively keeping them warm - avoids that
+      # pile-up entirely.
+      max-lifetime: 240000
+      keepalive-time: 120000
+      validation-timeout: 5000
+      connection-timeout: 20000
   jpa:
     hibernate:
       ddl-auto: update
