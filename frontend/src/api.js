@@ -1,29 +1,26 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8082'
 
-// Render's free tier can throw a transient 429/503 at the gateway for two very
-// different reasons: a brief edge-level throttle (recovers in a few seconds),
-// or a full cold start from an idle instance - which, measured from this
-// app's own logs, takes 140-160 seconds end to end (JVM boot + Kafka consumer
-// group join). A retry budget has to cover the *worse* case or it's useless -
-// so this backs off gradually and gives it a genuine 3 minutes before giving up,
-// not just a few seconds.
-const MAX_RETRIES = 14
-const BASE_DELAY_MS = 1000
-const MAX_DELAY_MS = 15000 // cap so it settles into "poll every 15s" rather than growing forever
+// Render's free tier can throw a transient 429/503 at the gateway - either a
+// brief edge-level burst throttle, or a cold start from an idle instance.
+// IMPORTANT: keep this gentle. An aggressive/fast retry loop is exactly the
+// kind of traffic pattern that can keep a burst-rate-limit re-triggering on
+// itself, turning one transient 429 into a sustained one. Few attempts, long
+// gaps between them - this is a safety net for a genuine blip, not something
+// that should ever generate a noticeable burst of its own traffic.
+const MAX_RETRIES = 3
+const RETRY_DELAYS_MS = [5000, 15000, 30000] // 5s, then 15s, then 30s - deliberately spaced out
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 /**
- * fetch() wrapper that retries on 429/503 (and on network-level failures,
- * which is what a still-booting instance often looks like) with capped
- * exponential backoff: 1s, 2s, 4s, 8s, then 15s repeatedly - roughly 3
- * minutes of total retry budget, enough to survive a real cold start rather
- * than just a brief blip. Any other response (including other error codes
- * like 401/404) is returned immediately without retrying - only "come back
- * later" signals get retried. Pass onRetry(attempt, delayMs, maxAttempts) to
- * surface progress in the UI instead of leaving the caller guessing.
+ * fetch() wrapper that retries on 429/503 (and on network-level failures)
+ * a small number of times with wide gaps between attempts - just enough to
+ * absorb a brief throttle or catch the tail end of a cold start, without
+ * itself becoming a burst of traffic that could keep a rate limit active.
+ * Any other response (including 401/404) returns immediately, no retry.
+ * Pass onRetry(attempt, delayMs, maxAttempts) to surface progress in the UI.
  */
 async function fetchWithRetry(url, options = {}, onRetry) {
   let lastError
@@ -37,7 +34,7 @@ async function fetchWithRetry(url, options = {}, onRetry) {
       if (attempt === MAX_RETRIES) throw networkErr
       lastError = networkErr
     }
-    const delay = Math.min(BASE_DELAY_MS * 2 ** attempt, MAX_DELAY_MS)
+    const delay = RETRY_DELAYS_MS[attempt]
     onRetry?.(attempt + 1, delay, MAX_RETRIES + 1)
     await sleep(delay)
   }
@@ -94,15 +91,57 @@ export async function getOrders(token, onRetry) {
 /**
  * EventSource can't set an Authorization header, so the token travels as a
  * query param here - the gateway's JwtAuthFilter accepts either.
+ *
+ * IMPORTANT: the browser's native EventSource auto-reconnects on its own
+ * whenever the connection drops - with NO backoff and NO limit. If the
+ * stream keeps failing (bad token, gateway hiccup, cold start), that default
+ * behavior hammers the endpoint every few seconds forever, invisibly, which
+ * is exactly the kind of sustained traffic that can keep an edge-level
+ * rate limit active. This replaces that with a manually managed reconnect:
+ * a handful of attempts with real backoff, then it gives up instead of
+ * retrying indefinitely.
  */
 export function connectOrderStream(token, onStatusUpdate, onOpen, onError) {
-  const source = new EventSource(`${API_BASE}/api/orders/stream?token=${encodeURIComponent(token)}`)
+  const MAX_RECONNECT_ATTEMPTS = 5
+  const RECONNECT_DELAYS_MS = [3000, 8000, 15000, 30000, 60000]
 
-  source.addEventListener('order-status', (event) => {
-    onStatusUpdate(JSON.parse(event.data))
-  })
-  source.onopen = () => onOpen?.()
-  source.onerror = (err) => onError?.(err)
+  let source = null
+  let reconnectTimer = null
+  let attempt = 0
+  let stopped = false
 
-  return () => source.close()
+  function connect() {
+    if (stopped) return
+
+    source = new EventSource(`${API_BASE}/api/orders/stream?token=${encodeURIComponent(token)}`)
+    // Native auto-reconnect is what we're replacing - EventSource has no
+    // official "disable retry" flag, so closing and reopening ourselves in
+    // onerror (below) is the standard way to take control of it.
+
+    source.addEventListener('order-status', (event) => {
+      onStatusUpdate(JSON.parse(event.data))
+    })
+
+    source.onopen = () => {
+      attempt = 0 // a successful connection resets the backoff
+      onOpen?.()
+    }
+
+    source.onerror = (err) => {
+      onError?.(err)
+      source.close()
+      if (stopped || attempt >= MAX_RECONNECT_ATTEMPTS) return
+      const delay = RECONNECT_DELAYS_MS[attempt]
+      attempt += 1
+      reconnectTimer = setTimeout(connect, delay)
+    }
+  }
+
+  connect()
+
+  return () => {
+    stopped = true
+    if (reconnectTimer) clearTimeout(reconnectTimer)
+    source?.close()
+  }
 }
