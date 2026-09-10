@@ -6,12 +6,22 @@ export default function OrderDashboard({ token, newOrder }) {
   const [orders, setOrders] = useState([])
   const [connected, setConnected] = useState(false)
   const [loadError, setLoadError] = useState(null)
+  const [retryStatus, setRetryStatus] = useState(null)
 
   useEffect(() => {
     setLoadError(null)
-    getOrders(token)
-      .then(setOrders)
-      .catch((err) => setLoadError(err.message || 'Failed to load orders'))
+    setRetryStatus(null)
+    getOrders(token, (attempt, delayMs, maxAttempts) => {
+      setRetryStatus(`Server is waking up - retrying (${attempt}/${maxAttempts})…`)
+    })
+      .then((data) => {
+        setRetryStatus(null)
+        setOrders(data)
+      })
+      .catch((err) => {
+        setRetryStatus(null)
+        setLoadError(err.message || 'Failed to load orders')
+      })
   }, [token])
 
   useEffect(() => {
@@ -71,6 +81,13 @@ export default function OrderDashboard({ token, newOrder }) {
           </div>
         </div>
 
+        {retryStatus && !loadError && (
+          <div className="empty-state-rich">
+            <div className="empty-title">{retryStatus}</div>
+            <div className="empty-sub">Render's free tier can take a couple of minutes to wake a sleeping service.</div>
+          </div>
+        )}
+
         {loadError && (
           <div className="empty-state-rich">
             <div className="empty-title">Couldn't load orders</div>
@@ -78,7 +95,7 @@ export default function OrderDashboard({ token, newOrder }) {
           </div>
         )}
 
-        {!loadError && orders.length === 0 && (
+        {!retryStatus && !loadError && orders.length === 0 && (
           <div className="empty-state-rich">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
               <rect x="4" y="7" width="16" height="13" rx="2" stroke="#4a4f5c" strokeWidth="1.5"/>
